@@ -10,11 +10,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Helper function for pagination and filtering
 function paginateAndFilter(
   elements: number[],
   page: number = 1,
@@ -23,7 +21,6 @@ function paginateAndFilter(
 ): { data: number[]; total: number; page: number; totalPages: number } {
   let filtered = elements;
 
-  // Apply filter if provided
   if (filter) {
     const filterStr = filter.toLowerCase();
     filtered = elements.filter(id => id.toString().includes(filterStr));
@@ -38,7 +35,6 @@ function paginateAndFilter(
   return { data, total, page, totalPages };
 }
 
-// GET /api/elements - Get unselected elements
 app.get('/api/elements', (req: Request<{}, {}, {}, PaginationQuery>, res: Response) => {
   try {
     const page = parseInt(req.query.page || '1');
@@ -55,7 +51,6 @@ app.get('/api/elements', (req: Request<{}, {}, {}, PaginationQuery>, res: Respon
   }
 });
 
-// GET /api/selected - Get selected elements
 app.get('/api/selected', (req: Request<{}, {}, {}, PaginationQuery>, res: Response) => {
   try {
     const page = parseInt(req.query.page || '1');
@@ -72,7 +67,6 @@ app.get('/api/selected', (req: Request<{}, {}, {}, PaginationQuery>, res: Respon
   }
 });
 
-// POST /api/select - Add element to selection (batched)
 app.post('/api/select', (req: Request, res: Response) => {
   try {
     const { id } = req.body;
@@ -89,7 +83,6 @@ app.post('/api/select', (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Element already selected' });
     }
 
-    // Add to queue (will be processed in next batch)
     requestQueue.addRequest(RequestType.SELECT, { id });
 
     res.json({ success: true, message: 'Request queued' });
@@ -99,7 +92,6 @@ app.post('/api/select', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/deselect - Remove element from selection (batched)
 app.post('/api/deselect', (req: Request, res: Response) => {
   try {
     const { id } = req.body;
@@ -112,7 +104,6 @@ app.post('/api/deselect', (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Element not selected' });
     }
 
-    // Add to queue (will be processed in next batch)
     requestQueue.addRequest(RequestType.DESELECT, { id });
 
     res.json({ success: true, message: 'Request queued' });
@@ -122,7 +113,6 @@ app.post('/api/deselect', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/sort - Update sort order (batched)
 app.post('/api/sort', (req: Request, res: Response) => {
   try {
     const { order } = req.body;
@@ -131,7 +121,6 @@ app.post('/api/sort', (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Order must be an array' });
     }
 
-    // Add to queue (will be processed in next batch)
     requestQueue.addRequest(RequestType.SORT, { order });
 
     res.json({ success: true, message: 'Request queued' });
@@ -141,7 +130,6 @@ app.post('/api/sort', (req: Request, res: Response) => {
   }
 });
 
-// POST /api/add - Add new element (batched, every 10s)
 app.post('/api/add', (req: Request, res: Response) => {
   try {
     const { id } = req.body;
@@ -154,7 +142,6 @@ app.post('/api/add', (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Element already exists' });
     }
 
-    // Add to queue (will be processed every 10 seconds)
     requestQueue.addRequest(RequestType.ADD, { id });
 
     res.json({ success: true, message: 'Request queued (will be processed within 10s)' });
@@ -164,7 +151,6 @@ app.post('/api/add', (req: Request, res: Response) => {
   }
 });
 
-// GET /api/state - Get current state (for persistence)
 app.get('/api/state', (req: Request, res: Response) => {
   try {
     const state = storage.getState();
@@ -175,7 +161,6 @@ app.get('/api/state', (req: Request, res: Response) => {
   }
 });
 
-// GET /api/queue-status - Get queue sizes (for monitoring)
 app.get('/api/queue-status', (req: Request, res: Response) => {
   try {
     const sizes = requestQueue.getQueueSizes();
@@ -186,18 +171,15 @@ app.get('/api/queue-status', (req: Request, res: Response) => {
   }
 });
 
-// Health check
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Total elements: ${storage.getAllElements().length}`);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
   requestQueue.stop();
