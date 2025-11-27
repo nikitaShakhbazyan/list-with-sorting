@@ -45,17 +45,6 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg text-sm text-gray-600">
-          <p className="font-semibold mb-2">Instructions:</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Click "Select" to move elements from left to right panel</li>
-            <li>Click "Remove" to move elements back to left panel</li>
-            <li>Drag and drop elements in the right panel to reorder (works with filtered list too)</li>
-            <li>Use filter fields to search by ID</li>
-            <li>Add new elements with custom IDs (processed every 10 seconds)</li>
-            <li>Selection and sorting are automatically saved</li>
-          </ul>
-        </div>
       </div>
     </main>
   );
