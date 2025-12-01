@@ -28,22 +28,27 @@ export default function SortableItem({ id, onDeselect }: SortableItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors cursor-move"
-      {...attributes}
-      {...listeners}
+      className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+      onClick={() => onDeselect(id)}
     >
       <div className="flex items-center gap-3">
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+        <div
+          className="cursor-move"
+          {...attributes}
+          {...listeners}
         >
-          <path d="M4 8h16M4 16h16"></path>
-        </svg>
+          <svg
+            className="w-5 h-5 text-gray-400"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M4 8h16M4 16h16"></path>
+          </svg>
+        </div>
         <span className="font-mono">ID: {id}</span>
       </div>
       <button
